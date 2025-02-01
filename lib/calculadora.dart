@@ -13,6 +13,7 @@ class _CalculadoraState extends State<Calculadora> {
   String _expressao = '';
   String _resultado = '';
 
+  // Método de pressionamento de botão
   void _pressionarBotao(String valor) {
     setState(() {
       if (valor == _limpar) {
@@ -26,30 +27,40 @@ class _CalculadoraState extends State<Calculadora> {
     });
   }
 
+  // Método para calcular o resultado
   void _calcularResultado() {
     try {
       _resultado = _avaliarExpressao(_expressao).toString();
     } catch (e) {
-      _resultado = 'Não é possivel calcular';
+      _resultado = 'Erro';
     }
   }
 
+  // Método para avaliar a expressão
   double _avaliarExpressao(String expressao) {
     expressao = expressao.replaceAll('x', '*');
     expressao = expressao.replaceAll('÷', '/');
-    // Avaliar a espressao com a biblioteca expressions
-    ExpressionEvaluator avaliador = const ExpressionEvaluator();
-    double resultado = avaliador.eval(Expression.parse(expressao), {});
-    return resultado;
+    final evaluator = ExpressionEvaluator();
+    final result = evaluator.eval(Expression.parse(expressao), {});
+    return result;
   }
 
+  // Widget do botão
   Widget _botao(String valor) {
-    return TextButton(
-      child: Text(
-        valor,
-        style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.all(20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          primary: Colors.blueAccent,
+        ),
+        onPressed: () => _pressionarBotao(valor),
+        child: Text(
+          valor,
+          style: const TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
       ),
-      onPressed: () => _pressionarBotao(valor),
     );
   }
 
@@ -57,47 +68,73 @@ class _CalculadoraState extends State<Calculadora> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Exibição da expressão
         Expanded(
-          child: Text(
-            _expressao,
-            style: const TextStyle(fontSize: 24),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                _expressao,
+                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              ),
+            ),
           ),
         ),
+        // Exibição do resultado
         Expanded(
-          child: Text(
-            _resultado,
-            style: const TextStyle(fontSize: 24),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                _resultado,
+                style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green),
+              ),
+            ),
           ),
         ),
+        // Grade de botões
         Expanded(
           flex: 3,
-          child: GridView.count(
-            crossAxisCount: 4,
-            childAspectRatio: 2,
-            children: [
-              _botao('7'),
-              _botao('8'),
-              _botao('9'),
-              _botao('÷'),
-              _botao('4'),
-              _botao('5'),
-              _botao('6'),
-              _botao('x'),
-              _botao('1'),
-              _botao('2'),
-              _botao('3'),
-              _botao('-'),
-              _botao('0'),
-              _botao('.'),
-              _botao('='),
-              _botao('+'),
-            ],
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              childAspectRatio: 1,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            padding: const EdgeInsets.all(16),
+            itemCount: 16,
+            itemBuilder: (context, index) {
+              const botaoValores = [
+                '7', '8', '9', '÷',
+                '4', '5', '6', 'x',
+                '1', '2', '3', '-',
+                '0', '.', '=', '+'
+              ];
+              return _botao(botaoValores[index]);
+            },
           ),
         ),
-        Expanded(
-          child: _botao(_limpar),
+        // Botão de limpar
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.all(20),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              primary: Colors.redAccent,
+            ),
+            onPressed: () => _pressionarBotao(_limpar),
+            child: const Text(
+              'Limpar',
+              style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ),
         )
       ],
     );
   }
 }
+
